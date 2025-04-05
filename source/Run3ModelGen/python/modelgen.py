@@ -18,6 +18,8 @@ log = structlog.get_logger()
 structlog.stdlib.recreate_defaults(log_level=logging.INFO)  # so we have logger names
 
 class ModelGenerator:
+
+    _custom_model = True
     '''Class for Model Generation.'''
     def __init__(self, config_file: str = None, scan_dir: str = f"scan", seed: int = 123) -> None:
         '''Initialise scan.'''
@@ -29,7 +31,7 @@ class ModelGenerator:
         
         self.config_file = config_file
         self.scan_dir = scan_dir
-        self.rawfilen = f"{datadir}/raw.slha"
+        self.rawfilen = f"{datadir}/MSSM19atQ_raw.slha" if ModelGenerator._custom_model else f"{datadir}/raw.slha"
         self.seed = seed
         self.points = {}
         
@@ -145,9 +147,7 @@ class ModelGenerator:
         rawfile.blocks['EXTPAR'][11] = self.points['AT'][modelnum]
         rawfile.blocks['EXTPAR'][12] = self.points['Ab'][modelnum]
         rawfile.blocks['EXTPAR'][13] = self.points['Atau'][modelnum]
-        rawfile.blocks['EXTPAR'][23] = self.points['mu'][modelnum]
         rawfile.blocks['EXTPAR'][25] = self.points['tanb'][modelnum]
-        rawfile.blocks['EXTPAR'][26] = self.points['mA'][modelnum]
         rawfile.blocks['EXTPAR'][31] = self.points['meL'][modelnum]
         rawfile.blocks['EXTPAR'][32] = self.points['meL'][modelnum] # mmuL := meL
         rawfile.blocks['EXTPAR'][33] = self.points['mtauL'][modelnum]
@@ -164,6 +164,17 @@ class ModelGenerator:
         rawfile.blocks['EXTPAR'][48] = self.points['mdR'][modelnum] # msR := mdR
         rawfile.blocks['EXTPAR'][49] = self.points['mbR'][modelnum]
         
+        if ModelGenerator._custom_model:
+            rawfile.blocks['EXTPAR'][21] = self.points['mHd2'][modelnum]
+            rawfile.blocks['EXTPAR'][22] = self.points['mHu2'][modelnum]
+            rawfile.blocks['MINPAR'][4] = self.points['sgnMu'][modelnum]
+            
+        else:
+            rawfile.blocks['EXTPAR'][23] = self.points['mu'][modelnum]
+            rawfile.blocks['EXTPAR'][26] = self.points['mA'][modelnum]
+
+
+
         preppedfile = f"{self.scan_dir}/{kwargs['output_dir']}/{modelnum}.slha" 
         pyslha.write(preppedfile, rawfile)
         
@@ -182,10 +193,11 @@ class ModelGenerator:
 
         # Check logfile to check if successful
         with open(logfile, 'r') as file: loglines = file.read()
-        if not "There has been a problem during the run." in loglines.strip(): success = True
+        if not "Error" in loglines.strip(): success = True
         
         # Re-add input blocks needed for other tools since SPheno swallows them:
         if success: addinputblocks(infile=outfile, blocksfile=self.rawfilen)
+        else: raise ValueError("Spheno terminated early")
         
         return success
     
