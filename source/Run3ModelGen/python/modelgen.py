@@ -193,11 +193,11 @@ class ModelGenerator:
 
         # Check logfile to check if successful
         with open(logfile, 'r') as file: loglines = file.read()
-        if not "Error" in loglines.strip(): success = True
+        if not "There has been a problem during the run." in loglines.strip(): success = True
         
         # Re-add input blocks needed for other tools since SPheno swallows them:
         if success: addinputblocks(infile=outfile, blocksfile=self.rawfilen)
-        else: raise ValueError("Spheno terminated early")
+        # else: raise ValueError("Spheno terminated early")
         
         return success
     
@@ -342,4 +342,4 @@ class ModelGenerator:
     def mkntuple(self) -> None:
         '''Promote ntuple making to class attribute.'''
         
-        return mkntuple(self.steps, self.scan_dir, self.num_models, self.isGMSB)
+        return mkntuple(self.steps, self.scan_dir, self.num_models, self.isGMSB, ModelGenerator._custom_model)
