@@ -168,7 +168,7 @@ class ModelGenerator:
         if ModelGenerator._custom_model:
             rawfile.blocks['EXTPAR'][21] = self.points['mHd2'][modelnum]
             rawfile.blocks['EXTPAR'][22] = self.points['mHu2'][modelnum]
-            rawfile.blocks['MINPAR'][4] = self.points['sgnMu'][modelnum]
+            rawfile.blocks['MINPAR'][4] = np.random.randint(-1, 1)
             
         else:
             rawfile.blocks['EXTPAR'][23] = self.points['mu'][modelnum]
