@@ -7,10 +7,11 @@ datadir = os.environ['DATAPATH'].split(':')[0]
 
 import pyslha
 
-from Run3ModelGen.ntupling import mkntuple
-from Run3ModelGen.microextract import microextract
-from Run3ModelGen.addinputblocks import addinputblocks
-from Run3ModelGen.pMSSM_convert import convert_slha
+# import Run3ModelGen modules
+from ntupling import mkntuple
+from microextract import microextract 
+from addinputblocks import addinputblocks
+from pMSSM_convert import convert_slha
 
 import structlog
 import logging
