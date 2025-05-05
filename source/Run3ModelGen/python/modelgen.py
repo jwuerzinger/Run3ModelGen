@@ -8,10 +8,10 @@ datadir = os.environ['DATAPATH'].split(':')[0]
 import pyslha
 
 # import Run3ModelGen modules
-from ntupling import mkntuple
-from microextract import microextract 
-from addinputblocks import addinputblocks
-from pMSSM_convert import convert_slha
+from Run3ModelGen.ntupling import mkntuple
+from Run3ModelGen.microextract import microextract 
+from Run3ModelGen.addinputblocks import addinputblocks
+from Run3ModelGen.pMSSM_convert import convert_slha
 
 import structlog
 import logging
@@ -20,9 +20,8 @@ structlog.stdlib.recreate_defaults(log_level=logging.INFO)  # so we have logger 
 
 class ModelGenerator:
 
-    _custom_model = True
     '''Class for Model Generation.'''
-    def __init__(self, config_file: str = None, scan_dir: str = f"scan", seed: int = 123) -> None:
+    def __init__(self, config_file: str = None, scan_dir: str = f"scan", seed: int = 123, custom_model: bool = False) -> None:
         '''Initialise scan.'''
         
         # Print logo. Note: ASCII art generated with https://patorjk.com/software/taag/ (Small, Fitted)
@@ -32,7 +31,8 @@ class ModelGenerator:
         
         self.config_file = config_file
         self.scan_dir = scan_dir
-        self.rawfilen = f"{datadir}/MSSM19atQ_raw.slha" if ModelGenerator._custom_model else f"{datadir}/raw.slha"
+	self.custom = custom_model
+        self.rawfilen = f"{datadir}/MSSM19atQ_raw.slha" if self.custom else f"{datadir}/raw.slha"
         self.seed = seed
         self.points = {}
         
@@ -165,7 +165,7 @@ class ModelGenerator:
         rawfile.blocks['EXTPAR'][48] = self.points['mdR'][modelnum] # msR := mdR
         rawfile.blocks['EXTPAR'][49] = self.points['mbR'][modelnum]
         
-        if ModelGenerator._custom_model:
+        if self.custom.
             rawfile.blocks['EXTPAR'][21] = self.points['mHd2'][modelnum]
             rawfile.blocks['EXTPAR'][22] = self.points['mHu2'][modelnum]
             rawfile.blocks['MINPAR'][4] = np.random.randint(-1, 1)
@@ -343,4 +343,4 @@ class ModelGenerator:
     def mkntuple(self) -> None:
         '''Promote ntuple making to class attribute.'''
         
-        return mkntuple(self.steps, self.scan_dir, self.num_models, self.isGMSB, ModelGenerator._custom_model)
+        return mkntuple(self.steps, self.scan_dir, self.num_models, self.isGMSB, self.custom)
