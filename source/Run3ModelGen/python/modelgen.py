@@ -31,7 +31,7 @@ class ModelGenerator:
         
         self.config_file = config_file
         self.scan_dir = scan_dir
-	self.custom = custom_model
+        self.custom = custom_model
         self.rawfilen = f"{datadir}/MSSM19atQ_raw.slha" if self.custom else f"{datadir}/raw.slha"
         self.seed = seed
         self.points = {}
@@ -165,10 +165,10 @@ class ModelGenerator:
         rawfile.blocks['EXTPAR'][48] = self.points['mdR'][modelnum] # msR := mdR
         rawfile.blocks['EXTPAR'][49] = self.points['mbR'][modelnum]
         
-        if self.custom.
+        if self.custom:
             rawfile.blocks['EXTPAR'][21] = self.points['mHd2'][modelnum]
             rawfile.blocks['EXTPAR'][22] = self.points['mHu2'][modelnum]
-            rawfile.blocks['MINPAR'][4] = np.random.randint(-1, 1)
+            rawfile.blocks['MINPAR'][4] = np.random.choice([-1, 1])
             
         else:
             rawfile.blocks['EXTPAR'][23] = self.points['mu'][modelnum]

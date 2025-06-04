@@ -11,7 +11,7 @@ BLOCK SMINPUTS  # Standard Model inputs
          7     1.77700000E+00   # mtau pole mass
 #
 BLOCK MINPAR  # Input parameters - minimal models
-        4     ES_sgnMu      # sign mu
+         4     ES_sgnMu      # sign mu
 #
 BLOCK EXTPAR  # Input parameters - non-minimal models
          0    -1.00000000E+00   # Set
@@ -23,7 +23,7 @@ BLOCK EXTPAR  # Input parameters - non-minimal models
         13     ES_Atau		# Atau(MX)
         21     ES_mHd2      # up type Higgs mass
         22     ES_mHu2      # down type Higgs mass
-	    25     ES_tanb		# tanb(MX)
+        25     ES_tanb		# tanb(MX)
         31     ES_meL		# meL(MX)
         32     ES_meL		# mmuL(MX)
         33     ES_mtauL		# mtauL(MX)
