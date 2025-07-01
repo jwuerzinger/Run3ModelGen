@@ -1,5 +1,5 @@
 prior: flat
-num_models: 10000 
+num_models: 1000
 isGMSB: False
 parameters:
   tanb: [1, 60]
