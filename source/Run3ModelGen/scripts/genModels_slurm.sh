@@ -24,4 +24,4 @@ module load anaconda/3/2021.05
 
 # Run single-core program
 source $HOME/Run3ModelGen/build/setup.sh
-srun pixi run genModels.py --config_file $HOME/Run3ModelGen/config_files/MSSM19atQ.yaml --seed $SLURM_ARRAY_JOB_ID$SLURM_ARRAY_TASK_ID --scan_dir /ptmp/vreich/modelgen/$SLURM_ARRAY_JOB_ID/$SLURM_ARRAY_TASK_ID --custom_model True 
+srun pixi run genModels.py --config_file $HOME/Run3ModelGen/config_files/MSSM19atQ.yaml --seed $SLURM_ARRAY_JOB_ID$SLURM_ARRAY_TASK_ID --scan_dir /ptmp/vreich/modelgen/$SLURM_JOB_NAME-$SLURM_ARRAY_JOB_ID/$SLURM_ARRAY_TASK_ID --custom_model True 
