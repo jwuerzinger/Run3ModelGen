@@ -194,7 +194,12 @@ class ModelGenerator:
 
         # Check logfile to check if successful
         with open(logfile, 'r') as file: loglines = file.read()
-        if "There has been a problem during the run." in loglines.strip() or "The error has occured" in loglines.strip(): success = False
+        errors = [
+            "Segmentation fault",
+            "There has been a problem during the run.",
+            "The error has occured"
+        ]
+        if any(err in loglines.strip() for err in errors): success = False
         else: success = True
         
         # Re-add input blocks needed for other tools since SPheno swallows them:
