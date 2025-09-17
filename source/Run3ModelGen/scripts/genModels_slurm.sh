@@ -5,15 +5,15 @@
 # is valid for any single-threaded program, including
 # sequential Matlab, Mathematica, Julia, and similar cases.
 #
-#SBATCH -J modelgen
+#SBATCH -J modelgen-v3
 #SBATCH --array=1-50
-#SBATCH -o ./out_%A/out.%a
-#SBATCH -e ./err_%A/err.%a
+#SBATCH -o ./%x/out_%A/out.%a
+#SBATCH -e ./%x/err_%A/err.%a
 #SBATCH -D ./
 #SBATCH --mem=2G
 #SBATCH --time=1-00
-#SBATCH --mail-type=BEGIN,END
-#SBATCH --mail-user=v.reichenspurner@tum.de
+
+INPUT_FILE="MSSM19atQ-v3.yaml"
 
 module purge
 module load gcc/10 impi/2021.2
@@ -24,4 +24,4 @@ module load anaconda/3/2021.05
 
 # Run single-core program
 source $HOME/Run3ModelGen/build/setup.sh
-srun pixi run genModels.py --config_file $HOME/Run3ModelGen/config_files/MSSM19atQ.yaml --seed $SLURM_ARRAY_JOB_ID$SLURM_ARRAY_TASK_ID --scan_dir /ptmp/vreich/modelgen/$SLURM_JOB_NAME-$SLURM_ARRAY_JOB_ID/$SLURM_ARRAY_TASK_ID --custom_model True 
+srun pixi run genModels.py --config_file $HOME/Run3ModelGen/config_files/$INPUT_FILE --seed $SLURM_ARRAY_JOB_ID$SLURM_ARRAY_TASK_ID --scan_dir /ptmp/vreich/modelgen/$SLURM_JOB_NAME-$SLURM_ARRAY_JOB_ID/$SLURM_ARRAY_TASK_ID --custom_model True 

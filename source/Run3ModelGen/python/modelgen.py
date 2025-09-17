@@ -168,7 +168,7 @@ class ModelGenerator:
         if self.custom:
             rawfile.blocks['EXTPAR'][21] = self.points['mHd2'][modelnum]
             rawfile.blocks['EXTPAR'][22] = self.points['mHu2'][modelnum]
-            rawfile.blocks['MINPAR'][4] = 1 if self.points['sgnMu']>0 else -1
+            rawfile.blocks['MINPAR'][4] = 1 if self.points['sgnMu'][modelnum]>0 else -1
             
         else:
             rawfile.blocks['EXTPAR'][23] = self.points['mu'][modelnum]
