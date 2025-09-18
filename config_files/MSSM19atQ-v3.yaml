@@ -1,6 +1,7 @@
 prior: flat
 num_models: 1000
 isGMSB: False
+model: MSSM19atQ
 parameters:
   tanb: [3, 70]
   M_1: [-507.9, 507.9]

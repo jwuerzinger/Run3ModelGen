@@ -70,6 +70,70 @@ class ModelGenerator:
                 log.info(f"\t{var} = {varval}")
 
         return None
+
+    def convert_model_to_parent(self):
+        '''convert input model to parent. MSSM7atQ-->MSSM19atQ'''
+        input_model = self.points
+        # copy input_model to keep none changing parameters
+        output_df = input_model.copy()
+
+        # declare SM parameters needed for conversion
+        alphainv = 1.27950000e2
+        GF = 1.16637870e-5
+        mZ = 9.11876000e1
+        alphaS = 1.18100000e-1
+
+        # MSSM7atQ --> MSSM9atQ
+        sin2thetaW_tree = 0.5 - np.sqrt(0.25 - np.pi / (np.sqrt(2)* mZ * mZ * alphainv * GF))
+        M1 = []
+        M3 = []
+        for i in range(len(input_model["M_2"])):
+            M1.append(float(input_model["M_2"][i] * 5/3 * sin2thetaW_tree / (1 - sin2thetaW_tree)))
+            M3.append(float(input_model["M_2"][i] * alphaS * alphainv * sin2thetaW_tree))
+        output_df["M_1"] = np.array(M1)
+        output_df["M_3"] = np.array(M3)
+
+        # MSSM9atQ --> MSSM10atQ
+        output_df["mq2"] = input_model["mf2"]
+        output_df["ml2"] = input_model["mf2"]
+
+        # MSSM10atQ --> MSSM11atQ
+        output_df["Atau"] = np.zeros(shape=input_model["tanb"])
+
+        # TODO: rethink naming convention (GAMBIT vs. ModelGen)
+        #
+        # # MSSM11atQ --> MSSM16atQ
+        # output_df["mq2_12"] = output_df["mq2"]
+        # output_df["mq2_3"] = output_df["mq2"]
+        # output_df["mu2_12"] = output_df["mq2"]
+        # output_df["md2_12"] = output_df["mq2"]
+        # output_df["ml2_12"] = output_df["ml2"]
+        # output_df["ml2_3"] = output_df["ml2"]
+        # output_df["me2_3"] = output_df["ml2"]
+        #
+        # # MSSM16atQ --> MSSM19atQ
+        # output_df["md2_12"] = output_df["mq2_12"]
+        # output_df["mu2_12"] = output_df["mq2_12"]
+        # output_df["me2_12"] = output_df["ml2_12"]
+
+        # MSSM11atQ --> MSSM19atQ (set the fermion parameters)
+        output_df["meL"] = output_df["ml2"]
+        output_df["mtauL"] = output_df["ml2"]
+        output_df["meR"] = output_df["ml2"]
+        output_df["mtauR"] = output_df["ml2"]
+        output_df["mqL1"] = output_df["mq2"]
+        output_df["mqL3"] = output_df["mq2"]
+        output_df["muR"] = output_df["mq2"]
+        output_df["mtR"] = output_df["mq2"]
+        output_df["mdR"] = output_df["mq2"]
+        output_df["mbR"] = output_df["mq2"]
+
+        # delete everything not nessecary for mssm19
+        del output_df["mf2"]
+        del output_df["ml2"]
+        del output_df["mq2"]
+
+        self.points = output_df
     
     def read_yaml_file(self, file_path: str) -> dict:
         '''Function for reading yaml file. Returns dict.'''
@@ -141,6 +205,8 @@ class ModelGenerator:
         '''Prep input. Returns the filename of the prepped file.'''
         
         rawfile = pyslha.read(self.rawfilen, ignorenomass = True)
+
+        if self.model == "MSSM7atQ": self.convert_model_to_parent()
         
         rawfile.blocks['EXTPAR'][1] = self.points['M_1'][modelnum]
         rawfile.blocks['EXTPAR'][2] = self.points['M_2'][modelnum]
