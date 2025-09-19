@@ -74,6 +74,7 @@ class ModelGenerator:
     def convert_model_to_parent(self):
         '''convert input model to parent. MSSM7atQ-->MSSM19atQ'''
         input_model = self.points
+        print(input_model.keys())
         # copy input_model to keep none changing parameters
         output_df = input_model.copy()
 
@@ -98,7 +99,7 @@ class ModelGenerator:
         output_df["ml2"] = input_model["mf2"]
 
         # MSSM10atQ --> MSSM11atQ
-        output_df["Atau"] = np.zeros(shape=input_model["tanb"])
+        output_df["Atau"] = np.array([0]*len(input_model["tanb"]))
 
         # TODO: rethink naming convention (GAMBIT vs. ModelGen)
         #
@@ -206,7 +207,7 @@ class ModelGenerator:
         
         rawfile = pyslha.read(self.rawfilen, ignorenomass = True)
 
-        if self.model == "MSSM7atQ": self.convert_model_to_parent()
+        if self.model == "MSSM7atQ" and modelnum == 0: self.convert_model_to_parent()
         
         rawfile.blocks['EXTPAR'][1] = self.points['M_1'][modelnum]
         rawfile.blocks['EXTPAR'][2] = self.points['M_2'][modelnum]
