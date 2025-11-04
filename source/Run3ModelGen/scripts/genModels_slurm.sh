@@ -1,19 +1,14 @@
 #!/bin/bash -l
-#
-# Single-core example job script for MPCDF Raven.
-# In addition to the Python example shown here, the script
-# is valid for any single-threaded program, including
-# sequential Matlab, Mathematica, Julia, and similar cases.
-#
-#SBATCH -J modelgen-v3
-#SBATCH --array=1-50
+
+#SBATCH -J modelgen-v12
+#SBATCH --array=1-60
 #SBATCH -o ./%x/out_%A/out.%a
 #SBATCH -e ./%x/err_%A/err.%a
 #SBATCH -D ./
 #SBATCH --mem=2G
 #SBATCH --time=1-00
 
-INPUT_FILE="MSSM19atQ-v3.yaml"
+INPUT_FILE="MSSM7atQ.yaml"
 
 module purge
 module load gcc/10 impi/2021.2

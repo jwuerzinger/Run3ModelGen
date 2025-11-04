@@ -512,6 +512,7 @@ superiso_blocks = {
     }
 
 input_blocks = {
+    'MINPAR': { 4: "sgnMu"},
     'EXTPAR':  {
          1   : "M_1",
          2   : "M_2",
@@ -519,6 +520,8 @@ input_blocks = {
         11   : "At",
         12   : "Ab",
         13   : "Atau",
+        21   : "mHd2",
+        22   : "mHu2",
         23   : "mu",
         25   : "tanb",
         26   : "mA",

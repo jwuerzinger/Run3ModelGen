@@ -3,6 +3,6 @@ run
 # pixi environments
 .pixi
 *.egg-info
-/runs/
+/runs/*
 /scan/
 

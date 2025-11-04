@@ -118,16 +118,16 @@ class ModelGenerator:
         # output_df["me2_12"] = output_df["ml2_12"]
 
         # MSSM11atQ --> MSSM19atQ (set the fermion parameters)
-        output_df["meL"] = output_df["ml2"]
-        output_df["mtauL"] = output_df["ml2"]
-        output_df["meR"] = output_df["ml2"]
-        output_df["mtauR"] = output_df["ml2"]
-        output_df["mqL1"] = output_df["mq2"]
-        output_df["mqL3"] = output_df["mq2"]
-        output_df["muR"] = output_df["mq2"]
-        output_df["mtR"] = output_df["mq2"]
-        output_df["mdR"] = output_df["mq2"]
-        output_df["mbR"] = output_df["mq2"]
+        output_df["meL"] =   np.sqrt(output_df["ml2"])
+        output_df["mtauL"] = np.sqrt(output_df["ml2"])
+        output_df["meR"] =   np.sqrt(output_df["ml2"])
+        output_df["mtauR"] = np.sqrt(output_df["ml2"])
+        output_df["mqL1"] =  np.sqrt(output_df["mq2"])
+        output_df["mqL3"] =  np.sqrt(output_df["mq2"])
+        output_df["muR"] =   np.sqrt(output_df["mq2"])
+        output_df["mtR"] =   np.sqrt(output_df["mq2"])
+        output_df["mdR"] =   np.sqrt(output_df["mq2"])
+        output_df["mbR"] =   np.sqrt(output_df["mq2"])
 
         # delete everything not nessecary for mssm19
         del output_df["mf2"]
