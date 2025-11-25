@@ -1,27 +1,16 @@
 prior: flat
-num_models: 3
+num_models: 1000
 isGMSB: False
-model: MSSM19atQ_mA
+model: MSSM7atQ
 parameters:
-  tanb: [1, 60]
-  M_1: [-2000, 2000]
-  M_2: [-2000, 2000]
-  M_3: [4000, 4000]
-  AT: [-8000, 8000]
-  Ab: [-2000, 2000]
-  Atau: [-2000, 2000]
-  mu: [-2000, 2000]
-  mA: [2000, 2000]
-  meL: [0, 2000]
-  mtauL: [2000, 2000]
-  meR: [0, 2000]
-  mtauR: [2000, 2000]
-  mqL1: [4000, 4000]
-  mqL3: [4000, 4000]
-  muR: [4000, 4000]
-  mtR: [4000, 4000]
-  mdR: [4000, 4000]
-  mbR: [4000, 4000]
+  AT: [-1000, 1000]
+  Ab: [-1000, 1000]
+  M_2: [-1000, 1000]
+  mHd2: [-1000, 3000000]
+  mHu2: [-3000000, 1000]
+  mf2: [0, 100000]
+  sgnMu: [-1, 1]
+  tanb: [3, 70]
 steps:
   - name: prep_input
     output_dir: input

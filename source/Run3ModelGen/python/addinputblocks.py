@@ -2,10 +2,19 @@ import pyslha
 import fileinput
 import numpy as np
 
+import structlog
+import logging
+log = structlog.get_logger()
+structlog.stdlib.recreate_defaults(log_level=logging.INFO)  # so we have logger names
+
 def addinputblocks(infile: str, blocksfile: str) -> None:
     '''Function for adding input blocks defined in blocksfile to infile. Needed since SPheno scraps unrecognised blocks from files while processing.'''
 
-    filedict = pyslha.read(infile, ignorenomass=True)
+    try: filedict = pyslha.read(infile, ignorenomass=True)
+    except: 
+        log.warning(f"Problem with Higgs mass in model {infile}")
+        filedict = pyslha.read(infile, ignorenomass=True, ignoreblocks=['SPINFO'])
+            
     blocksdict = pyslha.read(blocksfile, ignorenomass=True)
 
     blocksdict.blocks["SOFTSUSY"][28] = filedict.blocks["MASS"][25] #mh(pole)

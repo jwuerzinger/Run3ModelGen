@@ -512,6 +512,7 @@ superiso_blocks = {
     }
 
 input_blocks = {
+    'MINPAR': { 4: "sgnMu"},
     'EXTPAR':  {
          1   : "M_1",
          2   : "M_2",
@@ -519,6 +520,8 @@ input_blocks = {
         11   : "At",
         12   : "Ab",
         13   : "Atau",
+        21   : "mHd2",
+        22   : "mHu2",
         23   : "mu",
         25   : "tanb",
         26   : "mA",
@@ -640,7 +643,7 @@ def readSLHA(name: str, data: dict, prefix: str, blocks: dict, decays: dict, nee
         errfound=False
         if "May" in rawtext:
             data["Maywarning"]=1
-            errfoud=True
+            errfound=True
         if "tachyon" in rawtext:
             tachfound=False
             errfound=True
@@ -821,7 +824,7 @@ def readModel(inputDefinitions: list[tuple], num: int, scanDir: str, outName: st
                         pass
     return data
 
-def mkntuple(steps: dict, scan_dir: str, num_models: int, isGMSB: bool) -> None:
+def mkntuple(steps: dict, scan_dir: str, num_models: int, isGMSB: bool, custom_model: bool) -> None:
     '''Function for generating ntuple for directory scan_dir with num_models using uproot.'''
     log.info(f"Will make NTuple for: {scan_dir}, with {num_models} models")
     
@@ -842,6 +845,13 @@ def mkntuple(steps: dict, scan_dir: str, num_models: int, isGMSB: bool) -> None:
             inputDefinitions += [ (f"{step['output_dir']}/", ".slha", f"{step['prefix']}", input_blocks, {}, False), ]
         elif "softsusy" in step['name']:
             inputDefinitions += [ (f"{step['output_dir']}/", ".slha", f"{step['prefix']}", softsusy_blocks, softsusy_decays,True),]
+        elif "SPheno" in step['name'] and custom_model:
+            # modify SPheno blocks
+            del spheno_blocks["EXTPAR"][23]
+            del spheno_blocks["EXTPAR"][26]
+            spheno_blocks["EXTPAR"][21] = 'mHd2'
+            spheno_blocks["EXTPAR"][22] = 'mHu2'
+            inputDefinitions += [ (f"{step['output_dir']}/", ".slha", f"{step['prefix']}", spheno_blocks, softsusy_decays, True), ]
         elif "SPheno" in step['name']:
             inputDefinitions += [ (f"{step['output_dir']}/", ".slha", f"{step['prefix']}", spheno_blocks, softsusy_decays, True), ]
         elif "micromegas" in step['name']:

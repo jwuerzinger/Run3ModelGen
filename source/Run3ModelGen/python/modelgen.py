@@ -7,8 +7,9 @@ datadir = os.environ['DATAPATH'].split(':')[0]
 
 import pyslha
 
+# import Run3ModelGen modules
 from Run3ModelGen.ntupling import mkntuple
-from Run3ModelGen.microextract import microextract
+from Run3ModelGen.microextract import microextract 
 from Run3ModelGen.addinputblocks import addinputblocks
 from Run3ModelGen.pMSSM_convert import convert_slha
 
@@ -18,8 +19,9 @@ log = structlog.get_logger()
 structlog.stdlib.recreate_defaults(log_level=logging.INFO)  # so we have logger names
 
 class ModelGenerator:
+
     '''Class for Model Generation.'''
-    def __init__(self, config_file: str = None, scan_dir: str = f"scan", seed: int = 123) -> None:
+    def __init__(self, config_file: str = None, scan_dir: str = f"scan", seed: int = 123, custom_model: bool = False) -> None:
         '''Initialise scan.'''
         
         # Print logo. Note: ASCII art generated with https://patorjk.com/software/taag/ (Small, Fitted)
@@ -29,7 +31,8 @@ class ModelGenerator:
         
         self.config_file = config_file
         self.scan_dir = scan_dir
-        self.rawfilen = f"{datadir}/raw.slha"
+        self.custom = custom_model
+        self.rawfilen = f"{datadir}/MSSM19atQ_raw.slha" if self.custom else f"{datadir}/raw.slha"
         self.seed = seed
         self.points = {}
         
@@ -67,6 +70,71 @@ class ModelGenerator:
                 log.info(f"\t{var} = {varval}")
 
         return None
+
+    def convert_model_to_parent(self):
+        '''convert input model to parent. MSSM7atQ-->MSSM19atQ'''
+        input_model = self.points
+        print(input_model.keys())
+        # copy input_model to keep none changing parameters
+        output_df = input_model.copy()
+
+        # declare SM parameters needed for conversion
+        alphainv = 1.27950000e2
+        GF = 1.16637870e-5
+        mZ = 9.11876000e1
+        alphaS = 1.18100000e-1
+
+        # MSSM7atQ --> MSSM9atQ
+        sin2thetaW_tree = 0.5 - np.sqrt(0.25 - np.pi / (np.sqrt(2)* mZ * mZ * alphainv * GF))
+        M1 = []
+        M3 = []
+        for i in range(len(input_model["M_2"])):
+            M1.append(float(input_model["M_2"][i] * 5/3 * sin2thetaW_tree / (1 - sin2thetaW_tree)))
+            M3.append(float(input_model["M_2"][i] * alphaS * alphainv * sin2thetaW_tree))
+        output_df["M_1"] = np.array(M1)
+        output_df["M_3"] = np.array(M3)
+
+        # MSSM9atQ --> MSSM10atQ
+        output_df["mq2"] = input_model["mf2"]
+        output_df["ml2"] = input_model["mf2"]
+
+        # MSSM10atQ --> MSSM11atQ
+        output_df["Atau"] = np.array([0]*len(input_model["tanb"]))
+
+        # TODO: rethink naming convention (GAMBIT vs. ModelGen)
+        #
+        # # MSSM11atQ --> MSSM16atQ
+        # output_df["mq2_12"] = output_df["mq2"]
+        # output_df["mq2_3"] = output_df["mq2"]
+        # output_df["mu2_12"] = output_df["mq2"]
+        # output_df["md2_12"] = output_df["mq2"]
+        # output_df["ml2_12"] = output_df["ml2"]
+        # output_df["ml2_3"] = output_df["ml2"]
+        # output_df["me2_3"] = output_df["ml2"]
+        #
+        # # MSSM16atQ --> MSSM19atQ
+        # output_df["md2_12"] = output_df["mq2_12"]
+        # output_df["mu2_12"] = output_df["mq2_12"]
+        # output_df["me2_12"] = output_df["ml2_12"]
+
+        # MSSM11atQ --> MSSM19atQ (set the fermion parameters)
+        output_df["meL"] =   np.sqrt(output_df["ml2"])
+        output_df["mtauL"] = np.sqrt(output_df["ml2"])
+        output_df["meR"] =   np.sqrt(output_df["ml2"])
+        output_df["mtauR"] = np.sqrt(output_df["ml2"])
+        output_df["mqL1"] =  np.sqrt(output_df["mq2"])
+        output_df["mqL3"] =  np.sqrt(output_df["mq2"])
+        output_df["muR"] =   np.sqrt(output_df["mq2"])
+        output_df["mtR"] =   np.sqrt(output_df["mq2"])
+        output_df["mdR"] =   np.sqrt(output_df["mq2"])
+        output_df["mbR"] =   np.sqrt(output_df["mq2"])
+
+        # delete everything not nessecary for mssm19
+        del output_df["mf2"]
+        del output_df["ml2"]
+        del output_df["mq2"]
+
+        self.points = output_df
     
     def read_yaml_file(self, file_path: str) -> dict:
         '''Function for reading yaml file. Returns dict.'''
@@ -138,6 +206,8 @@ class ModelGenerator:
         '''Prep input. Returns the filename of the prepped file.'''
         
         rawfile = pyslha.read(self.rawfilen, ignorenomass = True)
+
+        if self.model == "MSSM7atQ" and modelnum == 0: self.convert_model_to_parent()
         
         rawfile.blocks['EXTPAR'][1] = self.points['M_1'][modelnum]
         rawfile.blocks['EXTPAR'][2] = self.points['M_2'][modelnum]
@@ -145,9 +215,7 @@ class ModelGenerator:
         rawfile.blocks['EXTPAR'][11] = self.points['AT'][modelnum]
         rawfile.blocks['EXTPAR'][12] = self.points['Ab'][modelnum]
         rawfile.blocks['EXTPAR'][13] = self.points['Atau'][modelnum]
-        rawfile.blocks['EXTPAR'][23] = self.points['mu'][modelnum]
         rawfile.blocks['EXTPAR'][25] = self.points['tanb'][modelnum]
-        rawfile.blocks['EXTPAR'][26] = self.points['mA'][modelnum]
         rawfile.blocks['EXTPAR'][31] = self.points['meL'][modelnum]
         rawfile.blocks['EXTPAR'][32] = self.points['meL'][modelnum] # mmuL := meL
         rawfile.blocks['EXTPAR'][33] = self.points['mtauL'][modelnum]
@@ -164,6 +232,17 @@ class ModelGenerator:
         rawfile.blocks['EXTPAR'][48] = self.points['mdR'][modelnum] # msR := mdR
         rawfile.blocks['EXTPAR'][49] = self.points['mbR'][modelnum]
         
+        if self.custom:
+            rawfile.blocks['EXTPAR'][21] = self.points['mHd2'][modelnum]
+            rawfile.blocks['EXTPAR'][22] = self.points['mHu2'][modelnum]
+            rawfile.blocks['MINPAR'][4] = 1 if self.points['sgnMu'][modelnum]>0 else -1
+            
+        else:
+            rawfile.blocks['EXTPAR'][23] = self.points['mu'][modelnum]
+            rawfile.blocks['EXTPAR'][26] = self.points['mA'][modelnum]
+
+
+
         preppedfile = f"{self.scan_dir}/{kwargs['output_dir']}/{modelnum}.slha" 
         pyslha.write(preppedfile, rawfile)
         
@@ -182,10 +261,17 @@ class ModelGenerator:
 
         # Check logfile to check if successful
         with open(logfile, 'r') as file: loglines = file.read()
-        if not "There has been a problem during the run." in loglines.strip(): success = True
+        errors = [
+            "Segmentation fault",
+            "There has been a problem during the run.",
+            "The error has occured"
+        ]
+        if any(err in loglines.strip() for err in errors): success = False
+        else: success = True
         
         # Re-add input blocks needed for other tools since SPheno swallows them:
         if success: addinputblocks(infile=outfile, blocksfile=self.rawfilen)
+        # else: raise ValueError("Spheno terminated early")
         
         return success
     
@@ -330,4 +416,4 @@ class ModelGenerator:
     def mkntuple(self) -> None:
         '''Promote ntuple making to class attribute.'''
         
-        return mkntuple(self.steps, self.scan_dir, self.num_models, self.isGMSB)
+        return mkntuple(self.steps, self.scan_dir, self.num_models, self.isGMSB, self.custom)
